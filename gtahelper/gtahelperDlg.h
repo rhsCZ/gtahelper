@@ -24,6 +24,7 @@ private:
 	INPUT input3[2];
 	INPUT input4[3];
 	INPUT input5;
+	bool t3 = false;
 	bool t1en = true;
 	bool t2en = true;
 	void detectkey();
