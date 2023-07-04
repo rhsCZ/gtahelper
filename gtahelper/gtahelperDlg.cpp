@@ -95,7 +95,7 @@ void gtahelperDlg::createsolo()
 	{
 		DWORD error;
 		t3 = true;
-		DWORD pid = GetProcessPIDByName("SndVol.exe");
+		DWORD pid = GetProcessPIDByName("GTA5.exe");
 		if (pid == 0)
 		{
 			::MessageBoxA(NULL, "ERROR: Unable to find GTA5.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
