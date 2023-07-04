@@ -22,6 +22,17 @@ gtahelperApp::gtahelperApp()
 gtahelperApp theApp;
 BOOL gtahelperApp::InitInstance()
 {
+	if (IsRunAsAdministrator())
+	{
+		DWORD errx;
+		BOOL isOK, isOK2;
+		HANDLE hToken;
+		HANDLE hCurrentProcess;
+		hCurrentProcess = GetCurrentProcess(); // 1
+		isOK = OpenProcessToken(hCurrentProcess, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken);
+		isOK2 = SetProcessPrivilege(hToken, SE_DEBUG_NAME, TRUE);
+		errx = GetLastError();
+	}
 	AfxInitRichEdit2();
 	CWinApp::InitInstance();
 	//SetErrorMode(0); //only debug

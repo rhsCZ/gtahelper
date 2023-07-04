@@ -90,10 +90,12 @@ DWORD gtahelperDlg::GetProcessPIDByName(const char* name)
 }
 void gtahelperDlg::createsolo()
 {
+	DebugSetProcessKillOnExit(0);
 	if (!t3)
 	{
+		DWORD error;
 		t3 = true;
-		DWORD pid = GetProcessPIDByName("GTA5.exe");
+		DWORD pid = GetProcessPIDByName("SndVol.exe");
 		if (pid == 0)
 		{
 			::MessageBoxA(NULL, "ERROR: Unable to find GTA5.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
@@ -110,27 +112,35 @@ void gtahelperDlg::createsolo()
 			::MessageBoxA(NULL, "ERROR: Uknown error!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
 		}
-		DebugActiveProcess(pid);
-		DWORD error = GetLastError();
+		BOOL ret = DebugActiveProcess(pid);
+		if(!ret)
+		{
+			 error = GetLastError();
+		
 		if (error != 0)
 		{
 			::MessageBoxA(NULL, "ERROR: Unable to pause process GTA.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
 		}
-		DebugSetProcessKillOnExit(0);
-		error = GetLastError();
+		}
+		/*error = GetLastError();
 		if (error != 0)
 		{
 			::MessageBoxA(NULL, "ERROR: Unable to set DebugSetProcessKillOnExit(0); !!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
-		}
+		}*/
 		Sleep(10000);
 		DebugActiveProcessStop(pid);
-		error = GetLastError();
-		if (error != 0)
+		if (!ret)
 		{
-			::MessageBoxA(NULL, "ERROR: Unable to Continue process GTA.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
-			goto endfunc;
+			error = GetLastError();
+
+			error = GetLastError();
+			if (error != 0)
+			{
+				::MessageBoxA(NULL, "ERROR: Unable to Continue process GTA.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+				goto endfunc;
+			}
 		}
 
 		::MessageBoxA(NULL, "Successfully created public solo session", "INFO", MB_OK | MB_ICONINFORMATION | MB_TOPMOST);
@@ -504,6 +514,7 @@ BOOL gtahelperDlg::OnInitDialog()
 		if (IsRunAsAdministrator())
 		{
 			reselev->EnableWindow(0);
+			reselev->ShowWindow(SW_HIDE);
 		}
 	}
 	
