@@ -17,7 +17,7 @@ int RegGetKey(HKEY key, LPSTR keyloc, unsigned long type, REGSAM access, LPSTR n
 #define new DEBUG_NEW
 #endif
 using namespace std;
-int gtahelperDlg::checkelevation(DWORD pid)
+int gtahelperDlg::checkelevation(DWORD pid) // function to check if the process is elevated
 {
 	DWORD error = 0;
 	bool fRet = FALSE;
@@ -60,7 +60,7 @@ int gtahelperDlg::checkelevation(DWORD pid)
 	return fRet;
 }
 
-DWORD gtahelperDlg::GetProcessPIDByName(const char* name)
+DWORD gtahelperDlg::GetProcessPIDByName(const char* name) //Search Process ID by Name
 {
 	PROCESSENTRY32 entry;
 	entry.dwSize = sizeof(PROCESSENTRY32);
@@ -91,10 +91,10 @@ DWORD gtahelperDlg::GetProcessPIDByName(const char* name)
 void gtahelperDlg::createsolo()
 {
 	DebugSetProcessKillOnExit(0);
-	if (!t3)
+	if (!ten)
 	{
 		DWORD error;
-		t3 = true;
+		ten = true;
 		DWORD pid = GetProcessPIDByName("GTA5.exe");
 		if (pid == 0)
 		{
@@ -145,63 +145,84 @@ void gtahelperDlg::createsolo()
 
 		::MessageBoxA(NULL, "Successfully created public solo session", "INFO", MB_OK | MB_ICONINFORMATION | MB_TOPMOST);
 	endfunc:
-		t3 = false;
+		ten = false;
 	}
 }
-void gtahelperDlg::loopmouse()
+void gtahelperDlg::loopOnBnClickedMovew() // loop for OnBnClickedMovew()
 {
 	while (t2en)
 	{
+		SendInput(1, &input1, sizeof(INPUT));
+	}
+
+}
+void gtahelperDlg::loopOnBnClickedMoveafk() // loop for OnBnClickedMoveafk()
+{
+	while (t3en)
+	{
+		SendInput(1, &input2, sizeof(INPUT));
 		input5.mi.dx = -50;
 		if (input5.mi.dx == LONG_MIN)
 		{
 			input5.mi.dx = LONG_MAX;
 		}
 		SendInput(1, &input5, sizeof(INPUT));
-#ifdef DEBUG
-		//_cprintf("X = %ld\n", input5.mi.dx);
-#endif 
-		Sleep(10);
+	}
+}
+void gtahelperDlg::loopOnBnClickedMovew8() // loop for OnBnClickedMovew8()
+{
+	while (t4en)
+	{
+		SendInput(2, input3, sizeof(INPUT));
 	}
 }
 void gtahelperDlg::detectkey()
 {
 	while (t1en)
 	{
-		if ((GetKeyState(0x11) & 0x8000) && (GetKeyState(0x31) & 0x8000))
+#ifdef DEBUG
+		/*BYTE data[256];
+		GetKeyboardState(data);
+		for (int i=0; i <= 150; i++)
+		{
+			_cprintf("key %d = %uc\n",i ,data[i]);
+		}*/
+		//_cprintf("\n");
+		//Sleep(1000);
+#endif
+		if (GetKeyState(VK_F4) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMovew();
 #ifdef DEBUG
 			//_cprintf("f4:pressed!\n");	
 #endif
 		}
-		if ((GetKeyState(0x11) & 0x8000) && (GetKeyState(0x32) & 0x8000))
+		if (GetKeyState(VK_F5) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMoveafk();
 #ifdef DEBUG
 			//_cprintf("f5:pressed!\n");
 #endif
 		}
-		if ((GetKeyState(0x11) & 0x8000) && (GetKeyState(0x33) & 0x8000))
+		if (GetKeyState(VK_F6) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMovew8();
 #ifdef DEBUG
 			//_cprintf("f6:pressed!\n");
 #endif
 		}
-		if ((GetKeyState(0x11) & 0x8000) && (GetKeyState(0xC0) & 0x8000))
+		if (GetKeyState(VK_F7) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
-			OnBnClickedStop();
+			OnBnClickedPubsolo();
 #ifdef DEBUG
 			//_cprintf("f7:pressed!\n");
 #endif
 		}
-		if ((GetKeyState(0x11) & 0x8000) && (GetKeyState(0x34) & 0x8000))
+		if (GetKeyState(VK_F8) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
-			
-			OnBnClickedPubsolo();
+			OnBnClickedStop();
 #ifdef DEBUG
-			//_cprintf("f7:pressed!\n");
+			//_cprintf("f8:pressed!\n");
 #endif
 		}
 		
@@ -209,7 +230,7 @@ void gtahelperDlg::detectkey()
 	}
 }
 gtahelperDlg::gtahelperDlg(CWnd* pParent /*=nullptr*/)
-	: CDialog(IDD_GTAHELPER_DIALOG, pParent)
+	: CDialog(IDD_GTAHELPER_DIALOG, pParent) //  gtahelperDlg constructor
 {
 	m_nidIconData.cbSize = sizeof(NOTIFYICONDATA);
 	m_nidIconData.hWnd = 0;
@@ -281,13 +302,29 @@ gtahelperDlg::gtahelperDlg(CWnd* pParent /*=nullptr*/)
 #endif
 		t1 = thread(&gtahelperDlg::detectkey,this);
 }
-gtahelperDlg::~gtahelperDlg()
+gtahelperDlg::~gtahelperDlg() // gtahelperDlg destructor
 {
 	Shell_NotifyIcon(NIM_DELETE,&m_nidIconData);
-	t1en = false;
-	t2en = false;
-	t1.join();
-	t2.join();
+	t1en = false; // disable thread 1
+	t2en = false; // disable thread 2
+	t3en = false; // disable thread 3
+	t4en = false; // disable thread 4
+	if(t1.joinable())
+	{
+		t1.join();
+	}
+	if (t2.joinable())
+	{
+		t2.join();
+	}
+	if (t3.joinable())
+	{
+		t3.join();
+	}
+	if (t4.joinable())
+	{
+		t4.join();
+	}
 #ifdef DEBUG
 	FreeConsole();
 #endif
@@ -414,18 +451,20 @@ BEGIN_MESSAGE_MAP(gtahelperDlg, CDialog)
 	ON_BN_CLICKED(IDC_RESELEV, &gtahelperDlg::OnBnClickedReselev)
 END_MESSAGE_MAP()
 
-BOOL gtahelperDlg::OnInitDialog()
+BOOL gtahelperDlg::OnInitDialog() // 
 {
+
 	int out;
 	DWORD indata =  1;
 	DWORD outdata = 0;
 	
 	
 	//AfxInitRichEdit2();
-	gtahelperDlg::ShowWindow(SW_SHOW);
-	gtahelperDlg::RedrawWindow();
-	gtahelperDlg::CenterWindow();
+	gtahelperDlg::ShowWindow(SW_SHOW); // force show window - later needed
+	gtahelperDlg::RedrawWindow(); // force redraw window
+	gtahelperDlg::CenterWindow(); // force center window
 	CDialog::OnInitDialog();
+	// section of handling registry keys
 	out = RegCrtKey(HKEY_CURRENT_USER, "Software\\gtahelper", KEY_ALL_ACCESS | KEY_WOW64_64KEY);
 	if (out == 1)
 	{
@@ -885,40 +924,57 @@ void gtahelperDlg::OnMinimize()
 
 void gtahelperDlg::OnBnClickedMovew()
 {
-	SendInput(1, &input1, sizeof(INPUT));
-}
-
-void gtahelperDlg::OnBnClickedMoveafk()
-{
-	SendInput(1, &input2, sizeof(INPUT));
 	t2en = true;
 	if (!t2.joinable())
 	{
-		t2 = thread(&gtahelperDlg::loopmouse, this);
+		t2 = thread(&gtahelperDlg::loopOnBnClickedMovew, this);
+	}
+}
+void gtahelperDlg::OnBnClickedMoveafk()
+{
+	t3en = true;
+	if (!t3.joinable())
+	{
+		t3 = thread(&gtahelperDlg::loopOnBnClickedMoveafk, this);
 	}
 }
 
 void gtahelperDlg::OnBnClickedMovew8()
 {
-	SendInput(2, input3, sizeof(INPUT));
+	t4en = true;
+	if (!t4.joinable())
+	{
+		t4 = thread(&gtahelperDlg::loopOnBnClickedMovew8, this);
+	}
 }
-
 void gtahelperDlg::OnBnClickedStop()
 {
-	SendInput(3, input4, sizeof(INPUT));
 	t2en = false;
+	t3en = false;
+	t4en = false;
 	if(t2.joinable())
 	{ 
 	t2.join();
 	}
+	if (t3.joinable())
+	{
+		t3.join();
+	}
+	if (t4.joinable())
+	{
+		t4.join();
+	}
+	SendInput(3, input4, sizeof(INPUT));
 	ZeroMemory(&t2, sizeof(t2));
+	ZeroMemory(&t3, sizeof(t3));
+
 }
 
 
 void gtahelperDlg::OnBnClickedPubsolo()
 {
-	thread t3(&gtahelperDlg::createsolo, this);
-	t3.detach();
+	thread t5(&gtahelperDlg::createsolo, this);
+	t5.detach();
 }
 
 

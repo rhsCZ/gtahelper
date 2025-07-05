@@ -80,7 +80,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)openssl\x32\Debug\;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)output\$(Platform)\$(Configuration)\</IntDir>
@@ -111,7 +111,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)openssl\x32\Debug\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CompileAs>CompileAsCpp</CompileAs>
       <UndefinePreprocessorDefinitions>
