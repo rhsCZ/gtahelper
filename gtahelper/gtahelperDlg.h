@@ -11,6 +11,8 @@ using namespace std;
 #define WM_SHOWPAGE WM_APP+2
 #define WM_TRAY_ICON_NOTIFY_MESSAGE (WM_USER + 1)
 void ElevateNow();
+bool SuspendProcess(DWORD pid);
+bool ResumeProcess(DWORD pid);
 BOOL IsRunAsAdministrator();
 class gtahelperDlg : public CDialog
 {
@@ -165,4 +167,51 @@ static void ElevateNow()
 			}
 		}
 	}
+}
+
+static bool SuspendProcess(DWORD pid) {
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hSnapshot == INVALID_HANDLE_VALUE) return false;
+
+	THREADENTRY32 te;
+	te.dwSize = sizeof(te);
+
+	if (Thread32First(hSnapshot, &te)) {
+		do {
+			if (te.th32OwnerProcessID == pid) {
+				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te.th32ThreadID);
+				if (hThread != NULL) {
+					SuspendThread(hThread);
+					CloseHandle(hThread);
+				}
+			}
+		} while (Thread32Next(hSnapshot, &te));
+	}
+
+	CloseHandle(hSnapshot);
+	return true;
+}
+
+// Obnoví bìh všech vláken
+static bool ResumeProcess(DWORD pid) {
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hSnapshot == INVALID_HANDLE_VALUE) return false;
+
+	THREADENTRY32 te;
+	te.dwSize = sizeof(te);
+
+	if (Thread32First(hSnapshot, &te)) {
+		do {
+			if (te.th32OwnerProcessID == pid) {
+				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te.th32ThreadID);
+				if (hThread != NULL) {
+					while (ResumeThread(hThread) > 0); // opakuj pro jistotu
+					CloseHandle(hThread);
+				}
+			}
+		} while (Thread32Next(hSnapshot, &te));
+	}
+
+	CloseHandle(hSnapshot);
+	return true;
 }

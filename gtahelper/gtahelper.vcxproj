@@ -208,7 +208,7 @@
       <HeapReserveSize>65536</HeapReserveSize>
       <HeapCommitSize>
       </HeapCommitSize>
-      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -249,7 +249,7 @@
       <HeapReserveSize>65536</HeapReserveSize>
       <HeapCommitSize>
       </HeapCommitSize>
-      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

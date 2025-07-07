@@ -90,60 +90,44 @@ DWORD gtahelperDlg::GetProcessPIDByName(const char* name) //Search Process ID by
 }
 void gtahelperDlg::createsolo()
 {
-	DebugSetProcessKillOnExit(0);
 	if (!ten)
 	{
-		DWORD error;
 		ten = true;
-		DWORD pid = GetProcessPIDByName("GTA5.exe");
+		DWORD pid = GetProcessPIDByName("GTA5_Enhanced.exe");
 		if (pid == 0)
 		{
-			::MessageBoxA(NULL, "ERROR: Unable to find GTA5.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+			::MessageBoxA(NULL, "ERROR: Unable to find GTA5_Enhanced.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
 		}
+
 		int val = checkelevation(pid);
 		if (val == 1)
 		{
-			::MessageBoxA(NULL, "ERROR: Process GTA5.exe runs with admin permission. Please restart app with admin permission!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+			::MessageBoxA(NULL, "ERROR: Process GTA5_Enhanced.exe runs with admin permission. Please restart app with admin permission!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
 		}
 		else if (val == -1)
 		{
-			::MessageBoxA(NULL, "ERROR: Uknown error!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+			::MessageBoxA(NULL, "ERROR: Unknown error!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
 			goto endfunc;
 		}
-		BOOL ret = DebugActiveProcess(pid);
-		if(!ret)
-		{
-			 error = GetLastError();
-		
-		if (error != 0)
-		{
-			::MessageBoxA(NULL, "ERROR: Unable to pause process GTA.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
-			goto endfunc;
-		}
-		}
-		/*error = GetLastError();
-		if (error != 0)
-		{
-			::MessageBoxA(NULL, "ERROR: Unable to set DebugSetProcessKillOnExit(0); !!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
-			goto endfunc;
-		}*/
-		Sleep(10000);
-		DebugActiveProcessStop(pid);
-		if (!ret)
-		{
-			error = GetLastError();
 
-			error = GetLastError();
-			if (error != 0)
-			{
-				::MessageBoxA(NULL, "ERROR: Unable to Continue process GTA.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
-				goto endfunc;
-			}
+		if (!SuspendProcess(pid))
+		{
+			::MessageBoxA(NULL, "ERROR: Unable to suspend process GTA5_Enhanced.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+			goto endfunc;
+		}
+
+		Sleep(10000); // pozastavení na 10 sekund
+
+		if (!ResumeProcess(pid))
+		{
+			::MessageBoxA(NULL, "ERROR: Unable to resume process GTA5_Enhanced.exe!!", "!!ERROR!!", MB_OK | MB_ICONERROR | MB_TOPMOST);
+			goto endfunc;
 		}
 
 		::MessageBoxA(NULL, "Successfully created public solo session", "INFO", MB_OK | MB_ICONINFORMATION | MB_TOPMOST);
+
 	endfunc:
 		ten = false;
 	}
@@ -153,6 +137,7 @@ void gtahelperDlg::loopOnBnClickedMovew() // loop for OnBnClickedMovew()
 	while (t2en)
 	{
 		SendInput(1, &input1, sizeof(INPUT));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 }
@@ -167,6 +152,7 @@ void gtahelperDlg::loopOnBnClickedMoveafk() // loop for OnBnClickedMoveafk()
 			input5.mi.dx = LONG_MAX;
 		}
 		SendInput(1, &input5, sizeof(INPUT));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 void gtahelperDlg::loopOnBnClickedMovew8() // loop for OnBnClickedMovew8()
@@ -174,6 +160,7 @@ void gtahelperDlg::loopOnBnClickedMovew8() // loop for OnBnClickedMovew8()
 	while (t4en)
 	{
 		SendInput(2, input3, sizeof(INPUT));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 void gtahelperDlg::detectkey()
@@ -190,35 +177,35 @@ void gtahelperDlg::detectkey()
 		//_cprintf("\n");
 		//Sleep(1000);
 #endif
-		if (GetKeyState(VK_F4) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F4) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMovew();
 #ifdef DEBUG
 			//_cprintf("f4:pressed!\n");	
 #endif
 		}
-		if (GetKeyState(VK_F5) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F5) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMoveafk();
 #ifdef DEBUG
 			//_cprintf("f5:pressed!\n");
 #endif
 		}
-		if (GetKeyState(VK_F6) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F6) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedMovew8();
 #ifdef DEBUG
 			//_cprintf("f6:pressed!\n");
 #endif
 		}
-		if (GetKeyState(VK_F7) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F7) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedPubsolo();
 #ifdef DEBUG
 			//_cprintf("f7:pressed!\n");
 #endif
 		}
-		if (GetKeyState(VK_F8) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F8) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
 		{
 			OnBnClickedStop();
 #ifdef DEBUG
@@ -550,11 +537,12 @@ BOOL gtahelperDlg::OnInitDialog() //
 			CheckDlgButton(IDC_TRAYEN, BST_UNCHECKED);
 			TrayHide();
 		}
-		if (IsRunAsAdministrator())
+		reselev->EnableWindow(0);
+		reselev->ShowWindow(SW_HIDE);
+		/*if (IsRunAsAdministrator())
 		{
-			reselev->EnableWindow(0);
-			reselev->ShowWindow(SW_HIDE);
-		}
+
+		}*/
 	}
 	
 	return TRUE;
