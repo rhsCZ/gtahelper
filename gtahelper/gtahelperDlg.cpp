@@ -177,40 +177,43 @@ void gtahelperDlg::detectkey()
 		//_cprintf("\n");
 		//Sleep(1000);
 #endif
-		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F4) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+		if (enableshortcuts)
 		{
-			OnBnClickedMovew();
+			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F4) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+			{
+				OnBnClickedMovew();
 #ifdef DEBUG
-			//_cprintf("f4:pressed!\n");	
+				//_cprintf("f4:pressed!\n");	
 #endif
-		}
-		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F5) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
-		{
-			OnBnClickedMoveafk();
+			}
+			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F5) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+			{
+				OnBnClickedMoveafk();
 #ifdef DEBUG
-			//_cprintf("f5:pressed!\n");
+				//_cprintf("f5:pressed!\n");
 #endif
-		}
-		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F6) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
-		{
-			OnBnClickedMovew8();
+			}
+			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F6) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+			{
+				OnBnClickedMovew8();
 #ifdef DEBUG
-			//_cprintf("f6:pressed!\n");
+				//_cprintf("f6:pressed!\n");
 #endif
-		}
-		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F7) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
-		{
-			OnBnClickedPubsolo();
+			}
+			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F7) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+			{
+				OnBnClickedPubsolo();
 #ifdef DEBUG
-			//_cprintf("f7:pressed!\n");
+				//_cprintf("f7:pressed!\n");
 #endif
-		}
-		if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F8) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
-		{
-			OnBnClickedStop();
+			}
+			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState(VK_F8) & 0x8000) //((GetKeyState(VK_CONTROL) & 0x8000) && 
+			{
+				OnBnClickedStop();
 #ifdef DEBUG
-			//_cprintf("f8:pressed!\n");
+				//_cprintf("f8:pressed!\n");
 #endif
+			}
 		}
 		
 			Sleep(20);
@@ -436,6 +439,7 @@ BEGIN_MESSAGE_MAP(gtahelperDlg, CDialog)
 	ON_BN_CLICKED(IDC_STOP, &gtahelperDlg::OnBnClickedStop)
 	ON_BN_CLICKED(IDC_PUBSOLO, &gtahelperDlg::OnBnClickedPubsolo)
 	ON_BN_CLICKED(IDC_RESELEV, &gtahelperDlg::OnBnClickedReselev)
+	ON_BN_CLICKED(IDC_ENSHORTCUT, &gtahelperDlg::OnBnClickedEnshortcut)
 END_MESSAGE_MAP()
 
 BOOL gtahelperDlg::OnInitDialog() // 
@@ -457,11 +461,13 @@ BOOL gtahelperDlg::OnInitDialog() //
 	{
 		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "TrayEnable", &indata);
 		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "TrayMinimize", &indata);
+		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "EnableShortcuts", &indata);
 	}
 	else if(out == 0)
 	{
 		trayenable = 1;
 		minimizeen = 1;
+		enableshortcuts = 1;
 		m_bMinimizeToTray = TRUE;
 	}
 	else if (out == 2)
@@ -507,6 +513,25 @@ BOOL gtahelperDlg::OnInitDialog() //
 			}
 		}
 	}
+	out = RegGetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "EnableShortcuts", &outdata);
+	if (out == 2)
+	{
+
+		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "EnableShortcuts", &indata);
+		enableshortcuts = 1;
+	}
+	else if (out == 1)
+	{
+		if (outdata == 1)
+		{
+			enableshortcuts = 1;
+		}
+		else
+		{
+			enableshortcuts = 0;
+		}
+	}
+	
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	TraySetIcon(m_hIcon);
@@ -536,6 +561,14 @@ BOOL gtahelperDlg::OnInitDialog() //
 		{
 			CheckDlgButton(IDC_TRAYEN, BST_UNCHECKED);
 			TrayHide();
+		}
+		if (enableshortcuts)
+		{
+			CheckDlgButton(IDC_ENSHORTCUT, BST_CHECKED);
+		}
+		else
+		{
+			CheckDlgButton(IDC_ENSHORTCUT, BST_UNCHECKED);
 		}
 		reselev->EnableWindow(0);
 		reselev->ShowWindow(SW_HIDE);
@@ -972,5 +1005,22 @@ void gtahelperDlg::OnBnClickedReselev()
 	{
 		ElevateNow();
 		SendMessage(WM_COMMAND, IDOK);
+	}
+}
+
+void gtahelperDlg::OnBnClickedEnshortcut()
+{
+	int check = shortcuten->GetCheck();
+	if (check == BST_CHECKED)
+	{
+		DWORD indata = 1;
+		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "EnableShortcuts", &indata);
+		enableshortcuts = true;
+	}
+	else
+	{
+		DWORD indata = 0;
+		RegSetKey(HKEY_CURRENT_USER, "Software\\gtahelper", REG_DWORD, KEY_ALL_ACCESS | KEY_WOW64_64KEY, "EnableShortcuts", &indata);
+		enableshortcuts = false;
 	}
 }

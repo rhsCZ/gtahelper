@@ -43,10 +43,12 @@ private:
 	afx_msg LRESULT OnTrayNotify(WPARAM wParam, LPARAM lParam);
 	CFont Font = {};
 	bool trayenable = false;
+	bool enableshortcuts = false;
 	bool minimizeen = false;
 	CButton* reselev = nullptr;
 	CButton* checkbox = nullptr;
 	CButton* trayen = nullptr;
+	CButton* shortcuten = nullptr;
 	// Construction
 public:
 	NOTIFYICONDATA	m_nidIconData;
@@ -106,6 +108,8 @@ protected:
 	
 	DECLARE_MESSAGE_MAP()
 
+public:
+	afx_msg void OnBnClickedEnshortcut();
 };
 static BOOL IsRunAsAdministrator()
 {

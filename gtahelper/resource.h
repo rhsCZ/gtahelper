@@ -13,6 +13,7 @@
 #define IDC_PUBSOLO                     1006
 #define IDC_MOVEAFK                     1007
 #define IDC_RESELEV                     1008
+#define IDC_ENSHORTCUT                  1009
 #define ID_MENU_OPEN                    32771
 #define ID_MENU_CLOSE                   32772
 #define ID_MENU_MINIMIZE                32773
